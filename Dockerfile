@@ -3,6 +3,10 @@ FROM ubuntu:15.10
 MAINTAINER Wido den Hollander <wido@widodh.nl>
 
 ENV HITCH_VERSION 1.1.1
+ENV HITCH_USER nobody
+ENV HITCH_GROUP nogroup
+ENV HITCH_CONFIG /etc/hitch/hitch.conf
+ENV HITCH_WORKERS 1
 
 RUN apt-get update
 
@@ -18,8 +22,14 @@ RUN cd /usr/src \
     && make \
     && make install
 
-RUN mkdir /etc/hitch && mkdir /etc/hitch/certs && touch /etc/hitch/hitch.conf
+RUN mkdir /etc/hitch
+
+COPY hitch.conf /etc/hitch/hitch.conf
+
+ADD run.sh /usr/local/sbin/run.sh
+
+RUN chmod +x /usr/local/sbin/run.sh
 
 EXPOSE 443
 
-CMD ["hitch", "--pidfile=/run/hitch.pid", "--user", "nobody", "--group", "nogroup", "--config", "/etc/hitch/hitch.conf"]
+CMD ["run.sh"]
